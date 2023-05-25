@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+    id 'java-gradle-plugin'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
+
+dependencies {
+
+    implementation gradleApi()
+}
+
+gradlePlugin {
+    plugins {
+        modularPlugin {
+            // Plugin id.
+            id = 'com.github.myplugin'
+            // Plugin implementation.
+            implementationClass = 'plugin.MyPlugin'
+        }
+    }
+}
