@@ -1,0 +1,22 @@
+{
+  "flavors": [
+    {
+      "flavorName": "free"
+    },
+    {
+      "flavorName": "pro"
+    },
+    {
+      "flavorName": "vip1"
+    },
+    {
+      "flavorName": "vip2"
+    },
+    {
+      "flavorName": "vip3"
+    },
+    {
+      "flavorName": "vip4"
+    }
+  ]
+}

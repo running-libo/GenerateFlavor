@@ -17,9 +17,9 @@ gradlePlugin {
     plugins {
         modularPlugin {
             // Plugin id.
-            id = 'com.github.myplugin'
+            id = 'com.github.generateflavorplugin'
             // Plugin implementation.
-            implementationClass = 'plugin.MyPlugin'
+            implementationClass = 'plugin.GenerateFlavorPlugin'
         }
     }
 }
