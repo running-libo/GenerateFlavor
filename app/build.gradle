@@ -1,3 +1,5 @@
+import groovy.xml.XmlParser
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -31,6 +33,16 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+//    flavorDimensions 'level'
+//    productFlavors {
+//        vip1 {
+//            dimension 'level'
+//        }
+//        vip2 {
+//            dimension 'level'
+//        }
+//    }
 }
 
 dependencies {
@@ -42,4 +54,200 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    println "in a closure"
 }
+
+task upper {
+    String someStr = "mY_naMe"
+    println("upper case: " + someStr.toUpperCase())
+}
+
+task count {
+    4.times {
+        print(it + " ")
+    }
+    println()
+}
+
+task hello {
+    println 'Hello world!'
+}
+
+task fine(dependsOn: hello) {
+    println 'I am fine'
+}
+
+4.times {
+    task "task$it" {
+        println("I am task $it" )
+    }
+}
+task0.dependsOn task2, task3
+
+task helloName {
+    println("doLast $hello.name task." )
+}
+
+task myTask {
+    ext.myProperty = "myValue" //自定义任务属性，用ext声明
+}
+
+task printTaskProperty {
+    println(myTask.myProperty)
+}
+
+defaultTasks 'cleanTask', 'runTask'
+
+task cleanTask {
+    println "task clean"
+}
+
+task runTask {
+    "task run"
+}
+
+//编写构建脚本
+
+//project属性
+task projectParams {
+    println "projectParams" + project.name + " " + project.path + " " + project.description
+}
+
+//局部变量
+def dest = "dest"
+task copy {
+    println(dest)
+}
+
+//扩展属性
+ext {
+    versionExt = "1.0.2"
+    email = "test@gihhub.com"
+}
+
+task extParams {
+    println versionExt + " -- " + email
+}
+
+//list map操作，数据结构的使用使用java的代码
+task listMap {
+    List<String> list = new ArrayList<>()
+    list.add("data1")
+    list.add("data2")
+    println("listSize: " + list.size())
+
+    Map<String, String> map = [key1: 'value1', key2: 'value2']
+    def set = map.entrySet()
+    for (Map.Entry<String, String> entry: set) {
+        println entry.key + " -- " + entry.value
+    }
+}
+
+//闭合作为方法的最后一个参数
+repositories({
+    println "in a closure"
+})
+
+//task
+//定位 tasks
+task location {
+    //通过属性获取 tasks
+    println(project.hello.name)
+    //通过 tasks collection 获取 tasks
+    println(tasks['hello'].name)
+}
+
+//配置一个任务 - 通过闭包 closure
+task myCopy(type: Copy)
+
+myCopy {
+    println("myCopy task")
+}
+
+// "must run after" 和 "should run after".
+
+task taskX {
+    println 'taskX'
+}
+task taskY {
+    println 'taskY'
+}
+taskX.mustRunAfter taskY
+taskX.shouldRunAfter taskY
+
+//给任务加入描述
+task description {
+    description '这是一个task的description'
+    println description
+}
+
+//使用判断条件跳过一个任务，使用 onlyIf() 方法来为一个任务加入判断条件. 就和 Java 里的 if 语句一样
+hello.onlyIf {
+    !project.hasProperty('taskHello')
+}
+
+//抛出StopExecutionException异常
+task stopException {
+//    throw new StopExecutionException()
+}
+
+//激活和注销 tasks
+task disableMe {
+    println 'disableMe'
+}
+disableMe.enabled = false
+
+//根据一个 XML 文件生成多个输出文件
+task transform {
+    def srcFile = file('mountains.xml')
+    def destDir = new File(buildDir, 'generated')  //buildDir为build编译文件目录，'generated'为generated目录
+    doLast {
+        println "transforming source file."
+        destDir.mkdirs()
+        def mountains = new XmlParser().parse(srcFile)
+        mountains.children().each {
+            def name = it.name()
+            def destFile = new File(destDir, "${name}.txt")
+            destFile.text = "$it.name()"
+        }
+    }
+}
+
+//通过 gradle.properties 文件设置属性
+task printProperties {
+    println gradlePropertiesProp  //gradle属性
+    println System.properties['system']  //system属性
+}
+
+//使用其他的构建脚本配置项目
+apply from: '../other.gradle'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,10 @@
+buildscript {
+    repositories {
+        google()
+    }
+}
+
 plugins {
-    id 'java-library'
     id 'java-gradle-plugin'
 }
 
@@ -8,18 +13,22 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_7
 }
 
-dependencies {
+repositories {
+    google()
+    mavenCentral()
+}
 
-    implementation gradleApi()
+dependencies {
+    implementation 'com.google.code.gson:gson:2.9.0'
 }
 
 gradlePlugin {
     plugins {
-        modularPlugin {
+        automatic {
             // Plugin id.
             id = 'com.github.generateflavorplugin'
             // Plugin implementation.
-            implementationClass = 'plugin.GenerateFlavorPlugin'
+            implementationClass = 'automatic.GenerateFlavorPlugin'
         }
     }
 }
