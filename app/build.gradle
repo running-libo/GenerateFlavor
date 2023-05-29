@@ -221,7 +221,7 @@ task printProperties {
 }
 
 //使用其他的构建脚本配置项目
-apply from: '../other.gradle'
+apply from: 'file.gradle'
 
 
 

@@ -1,0 +1,75 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+
+//Project.file() 方法能够相对项目目录定位一个文件
+File configFile = file('src/config.xml')
+configFile = file(configFile.absolutePath)
+configFile = file(new File('src/config.xml'))
+
+//创建文件集合，使用 FileCollection 接口表示文件集合
+task collections {
+    FileCollection collection = files('src/file1.txt', new File('src/file2.txt'), 'src/file3.txt')
+    collection.each {
+        println(it.name)
+    }
+
+    Set files = collection.files
+    List list = collection as List
+    def union = collection + file('src/file3.txt')
+    def different = collection - file('src/file3.txt')
+}
+
+task fielTree {
+    FileTree tree = fileTree(dir: 'src/main')
+    tree.include("**/*.java")
+    tree = fileTree('src')
+    tree = fileTree('src') {
+        include "**/*.java"
+    }
+
+    //遍历文件树
+//    tree.each {
+//        println(it)
+//    }
+
+    //访问文件树的元素
+    tree.visit { element ->
+        println "${element.file}"
+    }
+}
+
+//复制文件，任务类型为Copy，Copy类的父类定义好了from 和 into函数
+task copyTask(type: Copy) {
+    from('src/main/java') //添加要复制的文件
+    from('src/file1.txt') //继续添加要复制的文件
+    from file('src/main/res')
+
+    into('src/copyPath')
+
+    //复制时重命名文件
+    rename {String fileName ->
+        fileName.replace('', '')
+    }
+}
+
+//使用标准输出写入log信息
+task loggerTask {
+    logger.error('error message')
+    logger.info('info message')
+    logger.warn('warn message')
+    logger.debug('debug message')
+    logger.quiet('An info log message which is always logged.')
+    logger.lifecycle('A lifecycle info log message.')
+}
+
+
+
+
+
+
+
+
+
+
+
+
