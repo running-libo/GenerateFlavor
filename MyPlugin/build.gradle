@@ -2,6 +2,8 @@ plugins {
     id 'groovy'
     id 'java-library'
     id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'ivy-publish'
 }
 
 java {
@@ -14,6 +16,9 @@ dependencies {
     implementation gradleApi()
 }
 
+group 'com.example'
+version '1.0.0'
+
 gradlePlugin {
     plugins {
         modularPlugin {
@@ -21,6 +26,14 @@ gradlePlugin {
             id = 'jiaguplugin'
             // Plugin implementation.
             implementationClass = 'com.github.myplugin.JiaguPlugin'
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            url layout.buildDirectory.dir("maven-repo")
         }
     }
 }

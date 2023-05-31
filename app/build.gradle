@@ -1,9 +1,14 @@
+import automatic.BuildInfo
 import groovy.xml.XmlParser
+
+import java.time.Duration
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.github.generateflavorplugin'
+    id 'com.jfrog.bintray' version '1.8.5'
+    id 'maven-publish'
 }
 
 android {
@@ -54,6 +59,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation project(':MyPlugin')
 
     println "in a closure"
 }
@@ -222,6 +228,77 @@ task printProperties {
 
 //使用其他的构建脚本配置项目
 apply from: 'file.gradle'
+
+task showRepos {
+    def repos = repositories.collect {
+        it.name
+    }
+    doLast {
+        println "all repos"
+        println repos
+    }
+}
+
+println 'This is executed during the configuration phase.'
+
+tasks.register('testBoth') {
+    doFirst {
+        println 'This is executed first during the execution phase.'
+    }
+    doLast {
+        println 'This is executed last during the execution phase.'
+    }
+    println 'This is executed during the configuration phase as well, because :testBoth is used in the build.'
+}
+
+class UserInfo {
+    String userName
+    String age
+}
+
+task user {
+    def user = configure(new UserInfo()) {
+        userName = "hahaha"
+        age = 10
+    }
+    println user.userName + "  " + user.age
+
+    println project.buildDir
+    project.setBuildDir('src')
+    println project.buildDir
+}
+
+tasks.register('myClean', Delete) {
+    delete buildDir
+}
+
+def buildInfo = tasks.register("buildInfo", BuildInfo) {
+    version = project.version
+    outputFile = layout.buildDirectory.file("generated-resources/build-info.properties")
+}
+
+task stopExcution {
+    enabled = false //该task的行为将被跳过
+//    throw new StopExecutionException("")
+
+    doLast {
+        Thread.sleep(10000)
+    }
+    timeout = Duration.ofMillis(500) //设置执行超时
+}
+
+taskX.configure {
+    finalizedBy taskY
+}
+
+
+
+
+
+
+
+
+
 
 
 

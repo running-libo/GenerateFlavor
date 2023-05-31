@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 rootProject.name = "GradlePlugin"
 include ':app'
 include ':MyPlugin'
+
+println 'This is executed during the initialization phase.' //settings.gradle最早初始化
