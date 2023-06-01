@@ -1,4 +1,5 @@
 import automatic.BuildInfo
+import automatic.SayHelloTask
 import groovy.xml.XmlParser
 
 import java.time.Duration
@@ -290,6 +291,225 @@ task stopExcution {
 taskX.configure {
     finalizedBy taskY
 }
+
+task printProject {
+    println "project的各种属性: "
+    println project.rootProject
+    println project.projectDir.name + " -- " + project.projectDir.path
+    println project.buildDir.path
+    println project.name + " -  " + project.description
+
+}
+
+//采用 Project.task(String name) 方法来创建
+project.task("myTask3").doLast {
+    println "doLast in task3"
+}
+
+task first {
+    doLast{
+        println("task first")
+    }
+}
+
+task second {
+    doLast{
+        println("task second")
+    }
+}
+
+task testDependsOn(dependsOn: [first]) {
+    doLast{
+        println("task test")
+    }
+}
+
+//使用自定义task，并通过constructorArgs参数来指定构造函数的参数值
+task hello1(type: SayHelloTask, constructorArgs:[30])
+
+task hello2(type: SayHelloTask, constructorArgs:[18]) {
+    //使用了哪个task类型，就能直接调用该task类的各个属性和方法
+    msg = "lili"
+    sayHello()
+}
+
+task hello3(type: SayHelloTask, constructorArgs:[18]) {
+    destDir = file("$buildDir/outputFile")
+}
+
+//增量构建
+task test1 {
+    //设置inputs
+    inputs.property("name", "hjy")
+    inputs.property("age", 20)
+    //设置outputs
+    outputs.file("$buildDir/test.txt")
+
+    doLast {
+        println "exec task task1"
+    }
+}
+
+//在project中添加一个名为groupId的属性
+project.ext.groupId = "groupId"
+// 使用ext块添加属性
+ext {
+    artifactId='EasyDependency'
+    config=[
+            key:'value'
+    ]
+}
+
+class MyDefaultConfig {
+    String applicationId
+    String versionCode
+    String versionName
+    int targetSdkVersion
+
+    @Override
+    String toString() {
+        return "applicationId = $applicationId , versionCode = $versionCode, versionName = $versionName, targetSdkVersion = $targetSdkVersion"
+    }
+}
+
+//创建一个名为 foo 的Extension，每个 Extension 实际上与某个类是相关联的
+getExtensions().create("myDefaultConfig", MyDefaultConfig)
+
+//配置Extension
+myDefaultConfig {
+    applicationId = "com.example"
+    versionName = "1.0.1"
+    versionCode = "1"
+    targetSdkVersion 31
+}
+task testExt {
+    //能直接通过 project 获取到自定义的 Extension
+    println project.myDefaultConfig
+}
+
+//ExtentionContainer
+//父类
+class Animal {
+    String username
+    int legs
+    Animal(String name) {
+        username = name
+    }
+
+    void setLegs(int c) {
+        legs = c
+    }
+
+    String toString() {
+        return "This animal is $username, it has ${legs} legs."
+    }
+}
+
+//子类
+class Pig extends Animal {
+    int age
+    String owner
+
+    Pig(int age, String owner) {
+        super("Pig")
+        this.age = age
+        this.owner = owner
+    }
+
+    String toString() {
+        return super.toString() + " Its age is $age, its owner is $owner."
+    }
+}
+
+//创建的Extension是 暴露出来Animal 类型,创建extension名称是name,该extension的类型是Pig，后面2个是参数
+def aAnimal = getExtensions().create(Animal, "animal", Pig, 3, "pege")
+def aPig = getExtensions().create("pig", Pig, 5, "joge")
+animal {
+    legs = 4
+}
+pig {
+    setLegs 2
+}
+task testExt2 {
+    println project.getExtensions().findByName("animal")
+    println aAnimal
+    println aPig
+    //验证 aPig 对象是 ExtensionAware 类型的
+    println "aPig is a instance of ExtensionAware : ${aPig instanceof ExtensionAware}"
+}
+
+//  NamedDomainObjectContainer
+//这是领域对象类型定义
+class TestDomainObj {
+    //必须定义一个 name 属性，并且这个属性值初始化以后不要修改
+    String name
+    String msg
+    //构造函数必须有一个 name 参数
+    public TestDomainObj(String name) {
+        this.name = name
+    }
+
+    void msg(String msg) {
+        this.msg = msg
+    }
+
+    String toString() {
+        return "name = ${name}, msg = ${msg}"
+    }
+}
+
+//创建一个扩展
+class TestExtension {
+    //定义一个 NamedDomainObjectContainer 属性
+    NamedDomainObjectContainer<TestDomainObj> testDomains
+
+    //在构造函数中创建 NamedDomainObjectContainer
+    public TestExtension(org.gradle.api.Project project) {
+        //通过 project.container(...) 方法创建 NamedDomainObjectContainer
+        testDomains = project.container(TestDomainObj)
+    }
+
+    //让其支持 Gradle DSL 语法
+    void testDomain(Action<NamedDomainObjectContainer<TestDomainObj>> action) {
+        action.execute(testDomains)
+    }
+
+    void test() {
+        //遍历命名领域对象容器，打印出所有的领域对象值
+        testDomains.all {
+            println(it)
+        }
+    }
+}
+
+//创建一个名为 test 的 Extension
+def testExt = getExtensions().create("testDomain", TestExtension, project)
+
+testDomain {
+    testDomain {
+        domain1 {
+            msg "This is domain1"
+        }
+
+        domain2 {
+            msg "This is domain2"
+        }
+
+        domain3 {
+            msg "This is domain3"
+        }
+    }
+}
+
+task nameDomainTask {
+    testExt.test()
+}
+
+//学习链接：  https://juejin.cn/post/6844903838290296846#comment
+
+
+
+
 
 
 

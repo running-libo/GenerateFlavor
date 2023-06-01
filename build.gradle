@@ -4,3 +4,15 @@ plugins {
     id 'com.android.library' version '7.4.2' apply false
     id 'org.jetbrains.kotlin.android' version '1.8.0' apply false
 }
+
+allprojects {
+    //为Project类的属性，为所有项目配置属性
+}
+subprojects {
+//    为Project类的属性，为所有子项目配置属性
+//    mavenPublish {
+//        groupId = ""
+//        releaseRepo = ""
+//        snapshotRepo = ""
+//    }
+}
